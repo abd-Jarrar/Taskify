@@ -1,0 +1,12 @@
+services:
+  identity-service:
+    build:
+      context: ./IdentityService
+      dockerfile: Dockerfile
+    container_name: identity-service
+    ports:
+      - "${IDENTITY_PORT}:8080"
+    environment:
+      ASPNETCORE_HTTP_PORTS: 8080
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+    restart: unless-stopped
