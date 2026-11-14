@@ -1,12 +1,41 @@
 services:
+  identity-db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: identity-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - identity-db-data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
   identity-service:
     build:
       context: ./IdentityService
       dockerfile: Dockerfile
     container_name: identity-service
+    depends_on:
+      identity-db:
+        condition: service_healthy
     ports:
       - "${IDENTITY_PORT}:8080"
     environment:
       ASPNETCORE_HTTP_PORTS: 8080
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ConnectionStrings__Default: "Server=${IDENTITY_DB_HOST},${IDENTITY_DB_PORT};Database=${IDENTITY_DB_NAME};User Id=${IDENTITY_DB_USER};Password=${SA_PASSWORD};TrustServerCertificate=True"
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__ExpiryMinutes: ${JWT_EXPIRY_MINUTES}
     restart: unless-stopped
+
+volumes:
+  identity-db-data:
