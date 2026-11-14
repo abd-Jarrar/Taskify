@@ -39,12 +39,7 @@ namespace IdentityService.Services
                 expires: expires,
                 signingCredentials: credentials);
 
-            return new TokenResponse
-            {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                RefreshToken="1234",
-                Expires = expires
-            };
+            return new TokenResponse(new JwtSecurityTokenHandler().WriteToken(token),"1234",expires);
         }
     }
 }
