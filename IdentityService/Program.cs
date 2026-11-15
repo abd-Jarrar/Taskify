@@ -31,9 +31,11 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IJwtTokenProvider,JwtTokenProvider>();
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddSingleton<SoftDeleteInterceptor>();
+builder.Services.AddDbContext<AppDbContext>((sp,options) =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
+    options.AddInterceptors(sp.GetRequiredService<SoftDeleteInterceptor>());
 });
 
 var app = builder.Build();

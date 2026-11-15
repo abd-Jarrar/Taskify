@@ -13,6 +13,7 @@ namespace IdentityService.Data.Configurations
             builder.Property(x => x.Email).HasMaxLength(256).IsRequired();
             builder.Property(x => x.PasswordHash).HasMaxLength(100).IsRequired();
             builder.Property(x => x.Role).HasConversion<string>().HasMaxLength(20);
+            
             builder.HasOne(x => x.Department)
              .WithMany()
              .HasForeignKey(x => x.DepartmentId)
